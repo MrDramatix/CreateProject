@@ -1,8 +1,9 @@
 import pygame
-import math
 
-import arrowClass
 import playerClass
+import powerbarClass
+import holeClass
+import barrierClass
 
 pygame.init()
 
@@ -11,25 +12,37 @@ pygame.display.set_caption("Game")
 win.fill((0, 120, 0))
 clock = pygame.time.Clock()
 
-ball = playerClass.Player(pygame.image.load('res/ballsprite.png'),
-                          218, 218, 0, 0, 64, 64, 0, 20)
+# Code from "Coding With Russ" Start
+text_font = pygame.font.SysFont('Arial', 30)
 
-arrow = arrowClass.Arrow(pygame.image.load('res/arrowsprite.png'),
-                         win, ball.xPos, ball.yPos, 64, 256, 0)
 
-arrow_pivot_point = [arrow.find_true_pos()[0], arrow.find_true_pos()[1] - (arrow.height/2) + 10]
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    win.blit(img, (x, y))
+# Code from "Coding With Russ" End
+
+
+hole = holeClass.Hole(pygame.math.Vector2(250, 100), 25, win)
+wall = barrierClass.Barrier(pygame.math.Vector2(250, 250), 200, 50, win)
+ball = playerClass.Player(250, 250, 18, hole, wall, win)
+meter = powerbarClass.Meter(win, pygame.math.Vector2())
 
 run = True
 while run:
-    clock.tick(27)
+    clock.tick(24)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ball.launch(meter.get_power())
 
     win.fill((0, 120, 0))
-    ball.draw(win)
-    ballcenter = ball.find_true_pos()
+    ball.draw()
+    hole.draw()
+
+    if ball.finish:
+        draw_text("You Win!", text_font, (0, 0, 0), 250, 250)
 
     # END OF LOOP HERE
     pygame.display.update()
